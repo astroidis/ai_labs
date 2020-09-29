@@ -1,1 +1,1 @@
-# ai_labs
+expert systems and artifical intelligence course labs
