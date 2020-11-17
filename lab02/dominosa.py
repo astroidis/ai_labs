@@ -28,13 +28,15 @@ def print_board(board):
 
 
 def hash_board(board):
-    val = 0
+    val = ""
     for line in board:
         for cell in line:
-            if cell == "*":
-                val += 1
-
-    return val
+            if cell != " ":
+                if cell == "*":
+                    val += "7"
+                else:
+                    val += cell
+    return int(val)
 
 
 board = [
@@ -50,10 +52,18 @@ board = [
 ]
 
 
-print(hash_board(board))
+# print(hash_board(board))
 
-draw_horizontal_die(board, (2, 5, 2), (2, 7, 1))
-print_board(board)
+# draw_horizontal_die(board, (2, 5, 2), (2, 7, 1))
+# draw_horizontal_die(board, (0, 3, 2), (0, 5, 1))
 
-print()
-print(hash_board(board))
+for i in range(0, 9, 5):
+    for j in (0, 11, 3):
+        i_range = (i, i+5, 1)
+        j_range = (j, j+3, 2)
+        draw_vertical_die(board, i_range, j_range)
+        print_board(board)
+        print()
+
+
+# print(hash_board(board))
