@@ -11,8 +11,8 @@ def bfs(initial, goal):
     open_state_count -- count of elements in open states list
     close_state_count -- count of elements in close states list
     """
-    if initial == goal:  # начальное состояние равно целевому
-        return (True, [], 0, 0)
+    if initial.is_goal():  # начальное состояние равно целевому
+        return (True, initial, 0, 0)
 
     # список открытых состояний
     initial._depth = 0
@@ -24,6 +24,9 @@ def bfs(initial, goal):
     while open_states != []:
         # извлекаем первый элемент из (очереди) списка открытых состояний
         current = open_states.pop(0)
+
+        # print(f'd={current._depth}')
+
         # добавляем его в закрытые
         closed_states.append(current)
 
@@ -34,7 +37,7 @@ def bfs(initial, goal):
 
             # если этот ход не в списке закрытых состояний
             if m not in closed_states:
-                if m == goal:
+                if m.is_goal():
                     # сформировать список ходов до текущего
                     path = [m]
                     s = m.parent
@@ -45,3 +48,16 @@ def bfs(initial, goal):
                     return (True, path, len(open_states), len(closed_states))
                 open_states.append(m)
     return (False, [], -1, -1)  # нет решения, возвращаем пустой список
+
+
+if __name__ == '__main__':
+    from state import MapState
+    import graphs
+
+    initial = MapState(graphs.TEST_CUT1)
+    # for move in initial.get_moves():
+    #     print(move.map)
+
+    _, goal_state, open_count, closed_count = bfs(initial, None)
+    print(goal_state.map)
+    print(f'open states = {open_count} closed = {closed_count}')
