@@ -48,6 +48,7 @@ class MapState:
             neigcolor = self.map[neighbor][0]
             if (neigcolor is not None) and (color == neigcolor):
                 return False
+        return True
 
     def is_goal(self):
         colors = [self.valid_color(region, self.map[region][0])
