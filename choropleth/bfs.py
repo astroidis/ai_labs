@@ -39,15 +39,15 @@ def bfs(initial, goal):
             if m not in closed_states:
                 if m.is_goal():
                     # сформировать список ходов до текущего
-                    path = [m]
-                    s = m.parent
-                    while s:
-                        path.append(s)
-                        s = s.parent
-                    path.reverse()
-                    return (True, path, len(open_states), len(closed_states))
+                    # path = [m]
+                    # s = m.parent
+                    # while s:
+                    #     path.append(s)
+                    #     s = s.parent
+                    # path.reverse()
+                    return (True, m, len(open_states), len(closed_states))
                 open_states.append(m)
-    return (False, [], -1, -1)  # нет решения, возвращаем пустой список
+    return (False, initial, -1, -1)  # нет решения, возвращаем пустой список
 
 
 if __name__ == '__main__':
@@ -55,9 +55,9 @@ if __name__ == '__main__':
     import graphs
 
     initial = MapState(graphs.TEST_CUT1)
-    # for move in initial.get_moves():
-    #     print(move.map)
+    for move in initial.get_moves():
+        print(move.map)
 
-    _, goal_state, open_count, closed_count = bfs(initial, None)
-    print(goal_state.map)
-    print(f'open states = {open_count} closed = {closed_count}')
+    # _, goal_state, open_count, closed_count = bfs(initial, None)
+    # print(goal_state.map)
+    # print(f'open states = {open_count} closed = {closed_count}')
