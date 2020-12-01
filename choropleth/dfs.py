@@ -31,13 +31,8 @@ def dfs(initial, max_depth):
         i += 1
 
         if i % 100 == 0:
-            print(f"d={current._depth}, open={len(open_states)}",
+            print(f"d={current.depth}, open={len(open_states)}",
                   f"close={len(closed_states)}")
-        # if current._depth >= 48:
-        #     for key, value in current.map.items():
-        #         if not current.valid_color(key, current.map[key][0]):
-        #             print(f'bad region={key}')
-
         # if current._depth > max_depth:
         #     max_depth = current._depth
         #     print(f'd={current._depth}')

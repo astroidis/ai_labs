@@ -15,8 +15,10 @@ def bfs(initial, goal):
         return (True, initial, 0, 0)
 
     # список открытых состояний
-    initial._depth = 0
+    initial.depth = 0
     open_states = [initial]
+
+    max_depth = 0
 
     # список закрытых состояний
     closed_states = []
@@ -25,7 +27,9 @@ def bfs(initial, goal):
         # извлекаем первый элемент из (очереди) списка открытых состояний
         current = open_states.pop(0)
 
-        # print(f'd={current._depth}')
+        if max_depth < current.depth:
+            max_depth = current.depth
+            print(f'd={current.depth}')
 
         # добавляем его в закрытые
         closed_states.append(current)
@@ -33,22 +37,15 @@ def bfs(initial, goal):
         # генерируем список возможных ходов
         for m in current.get_moves():
             # get_moves() это делает, но вдруг забыли реализовать
-            m._depth = current._depth + 1
+            m.depth = current.depth + 1
 
             # если этот ход не в списке закрытых состояний
             if m not in closed_states:
                 if m.is_goal():
                     # сформировать список ходов до текущего
-                    # path = [m]
-                    # s = m.parent
-                    # while s:
-                    #     path.append(s)
-                    #     s = s.parent
-                    # path.reverse()
                     return (True, m, len(open_states), len(closed_states))
                 open_states.append(m)
     return (False, initial, -1, -1)  # нет решения, возвращаем пустой список
-
 
 if __name__ == '__main__':
     from state import MapState
