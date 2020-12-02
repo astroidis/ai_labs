@@ -1,3 +1,7 @@
 .vscode
 lab01/algos/__pycache__
 choropleth/__pycache__
+genalgo/include/
+genalgo/Scripts/
+genalgo/Lib/
+genalgo/pyvenv.cfg
