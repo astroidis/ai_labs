@@ -2,6 +2,7 @@ import numpy as np
 from deap import creator, base, tools, algorithms
 from random import randint
 import matplotlib.pyplot as plt
+from operator import itemgetter
 
 
 class Knapsack:
@@ -51,14 +52,14 @@ class Knapsack:
 def main():
     POPULATION_SIZE = 50
     GENERATIONS = 50
-    MUT_PROBA = 0.1
+    MUT_PROBA = 0.5
     CROSS_PROBA = 0.1
 
     sack = Knapsack(400)
     toolbox = base.Toolbox()
 
-    creator.create("FitnessMaxMin", base.Fitness, weights=(1.0, -1.0))
-    creator.create("Individual", list, fitness=creator.FitnessMaxMin)
+    creator.create("Fitness", base.Fitness, weights=(1.0, -1.0))
+    creator.create("Individual", list, fitness=creator.Fitness)
 
     toolbox.register("zero_or_one", randint, 0, 1)
 
@@ -69,41 +70,55 @@ def main():
 
     fitness = lambda individual: sack.get_value(individual)
     toolbox.register("evaluate", fitness)
-    # toolbox.register("select", tools.selRoulette)
     toolbox.register("select", tools.selTournament, tournsize=3)
-    # toolbox.register("select", tools.selBest)
     toolbox.register("mate", tools.cxUniform, indpb=0.1)
     toolbox.register("mutate", tools.mutFlipBit, indpb=0.1)
 
-    stats = tools.Statistics(lambda ind: ind.fitness.values)
-    stats.register("max", np.max)
-    stats.register("avg", np.mean)
+    value_stats = tools.Statistics(key=lambda ind: ind.fitness.values[0])
+    weight_stats = tools.Statistics(key=lambda ind: ind.fitness.values[1])
+    mstats = tools.MultiStatistics(value=value_stats, weight=weight_stats)
+    mstats.register("max", np.max, axis=0)
+    mstats.register("avg", np.mean, axis=0)
+    mstats.register("min", np.min, axis=0)
 
     population = toolbox.create_population()
     hof = tools.HallOfFame(1)
 
     population, logbook = algorithms.eaSimple(
         population, toolbox, cxpb=CROSS_PROBA, mutpb=MUT_PROBA, ngen=GENERATIONS,
-        stats=stats, verbose=False, halloffame=hof
+        stats=mstats, verbose=True, halloffame=hof
     )
 
-    maxfit, avgfit = logbook.select("max", "avg")
+    value = logbook.chapters["value"].select("max", "min", "avg")
+    weight = logbook.chapters["weight"].select("max", "min", "avg")
 
     best = hof[0]
     print("Best:", best)
-    print("Best fitness:", best.fitness.values[0])
+    print("Best value:", best.fitness.values[0])
     print("Best pack:")
     sack.print_items(best)
 
-    plt.plot(maxfit, color="red", label="Max")
-    plt.plot(avgfit, color="green", label="Avg")
+    plt.subplot(1, 2, 1)
+    plt.plot(value[0], color="red", label="Max")
+    plt.plot(value[1], color="blue", label="Min")
+    plt.plot(value[2], color="green", label="Avg")
     plt.xlabel("generations")
-    plt.ylabel("fitness")
+    plt.ylabel("value")
     plt.grid(True)
     plt.legend(loc="best")
-    # plt.title("fitness over generations (roulette)")
-    plt.title("fitness over generations (tournament)")
-    # plt.title("fitness over generations (best)")
+    plt.title("value over generations")
+
+    plt.subplot(1, 2, 2)
+    plt.plot(weight[0], color="red", label="Max")
+    plt.plot(weight[1], color="blue", label="Min")
+    plt.plot(weight[2], color="green", label="Avg")
+    plt.xlabel("generations")
+    plt.ylabel("weight")
+    plt.grid(True)
+    plt.legend(loc="best")
+    plt.title("weight over generations")
+
+    plt.tight_layout(pad=0.9)
     plt.show()
 
 
