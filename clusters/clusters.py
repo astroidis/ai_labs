@@ -64,22 +64,33 @@ class Graph:
         return mst
 
 
+def union(clusters):
+    for i in range(len(clusters)):
+        for j in range(i+1, len(clusters)):
+            if clusters[i].intersection(clusters[j]):
+                clusters[j].union(clusters[i])
+                del clusters[i]
+
+
 def make_clusters(graph):
     mst = graph.get_mst("prim")
-    clusters = []
+    clusters = [set([vert]) for vert in graph.vertices]
+    # print("MST start", mst)
+    # print("CLUSTER start", clusters)
     while len(mst) > 0:
         m = min(mst, key=lambda e: graph.distances[e])
+        # print("MIN edge", m)
         new = None
         for c in clusters:
-            if m[0] in c:
-                new = (c, m[1])
+            if (m[0] in c):
+                c.add(m[1])
             elif m[1] in c:
-                new = (c, m[0])
-        if clusters == []:
-            clusters.append(m)
-        else:
-            clusters.append(new)
+                c.add(m[0])
+        union(clusters)
         mst.remove(m)
+        # print("MST", mst)
+        # print("CLUSTERS", clusters)
+        # input()
     return clusters
 
 

@@ -4,13 +4,11 @@ from random import choice
 
 
 def distance(p1, p2):
-    return np.sqrt((p1[0] - p2[0])**2 + (p1[1] - p2[1])**2)
+    return np.linalg.norm(p2 - p1)
 
 
 def points_mean(cluster):
-    x = sum([p[0] for p in cluster]) / len(cluster)
-    y = sum([p[1] for p in cluster]) / len(cluster)
-    return (x, y)
+    return np.mean(cluster, axis=0)
 
 
 def centers(points, k):
@@ -31,7 +29,7 @@ def assign_point(clusters, centers, point):
     return clusters
 
 
-def kmean(points, k):
+def kmeans(points, k):
     clusters = [[] for _ in range(k)]
     cnts = centers(points, k)
     for p in points:
@@ -39,26 +37,27 @@ def kmean(points, k):
         for i, _ in enumerate(cnts):
             if len(clusters[i]) > 0:
                 cnts[i] = points_mean(clusters[i])
-    return clusters
+    return clusters, cnts
 
 
-points = [
-    (1, 1), (1, 2), (1, 3), (2, 2), (2, 3), (3, 1), (3, 2), (2, 5), (2, 6), (3, 6),
-    (3, 7), (4, 5), (4, 6), (5, 3), (5, 4), (6, 2), (6, 4), (7, 2), (7, 3), (7, 4)
-]
-xs = [p[0] for p in points]
-ys = [p[1] for p in points]
-plt.scatter(xs, ys)
-plt.grid(True)
-plt.show()
+if __name__ == "__main__":
+    data = [
+        (1, 1), (1, 2), (1, 3), (2, 2), (2, 3), (3, 1), (3, 2), (2, 5), (2, 6), (3, 6),
+        (3, 7), (4, 5), (4, 6), (5, 3), (5, 4), (6, 2), (6, 4), (7, 2), (7, 3), (7, 4)
+    ]
+    points = [np.asarray(p) for p in data]
 
-clusters = kmean(points, 3)
-# print(clusters)
+    # plt.scatter(*zip(*points))
+    # plt.grid(True)
+    # plt.show()
 
-fig, ax = plt.subplots()
-for clust in clusters:
-    xs = [p[0] for p in clust]
-    ys = [p[1] for p in clust]
-    ax.scatter(xs, ys)
+    clusters = kmeans(points, 4)
+    # print(clusters)
 
-plt.show()
+    fig, ax = plt.subplots()
+    for clust in clusters:
+        xs = [p[0] for p in clust]
+        ys = [p[1] for p in clust]
+        ax.scatter(xs, ys)
+
+    plt.show()
