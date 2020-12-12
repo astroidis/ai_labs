@@ -15,11 +15,12 @@ def centers(points, k):
     cnts = []
     cnts.append(choice(points))
     for i in range(k-1):
-        mean = points_mean(cnts)
         ds = np.array([])
         for p in points:
-            ds = np.append(ds, distance(mean, p))
-        cnts.append(points[ds.argmax()])
+            md = min([distance(p, c) for c in cnts])
+            ds = np.append(ds, md)
+        probs = np.asarray([d**2 / np.sum(ds**2) for d in ds])
+        cnts.append(points[np.random.choice(len(points), p=probs)])
     return cnts
 
 
@@ -51,7 +52,7 @@ if __name__ == "__main__":
     # plt.grid(True)
     # plt.show()
 
-    clusters = kmeans(points, 4)
+    clusters, _ = kmeans(points, 3)
     # print(clusters)
 
     fig, ax = plt.subplots()

@@ -14,13 +14,16 @@ with open("s1.txt", "r", encoding="utf-8") as f:
 # plt.scatter(*zip(*dots), s=5)
 # plt.show()
 
-clusters, centers = kmeans(dots, 13)
+colors = ["#FF6347", "#CD5C5C", "#FF8C00", "#FFD700", "#DAA520", "#BDB76B",
+          "#9ACD32", "#32CD32", "#90EE90", "#00FA9A", "#66CDAA", "#20B2AA",
+          "#5F9EA0", "#6495ED", "#7B68EE", "#DB7093", "#F4A460", "#B0C4DE"]
+clusters, centers = kmeans(dots, 15)
 
 fig, ax = plt.subplots()
-for clust in clusters:
+for clust, col in zip(clusters, colors):
     xs = [p[0] for p in clust]
     ys = [p[1] for p in clust]
-    ax.scatter(xs, ys, s=5)
+    ax.scatter(xs, ys, s=5, c=col)
 
 ax.plot(*zip(*centers), "r^")
 
