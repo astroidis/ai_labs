@@ -9,3 +9,4 @@ clusters/include/
 clusters/Scripts/
 clusters/Lib/
 clusters/pyvenv.cfg
+clusters/__pycache__/
