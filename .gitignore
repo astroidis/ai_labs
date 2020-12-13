@@ -5,6 +5,7 @@ genalgo/include/
 genalgo/Scripts/
 genalgo/Lib/
 genalgo/pyvenv.cfg
+genalgo/share
 clusters/include/
 clusters/Scripts/
 clusters/Lib/
