@@ -10,6 +10,8 @@
 #   value of best individual
 
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+from matplotlib import cm
 import numpy as np
 
 alpha = 1 + np.random.random()
@@ -28,9 +30,12 @@ class Individual:
     def fitness(self):
         # return -np.cos(self.x1) * np.cos(self.x2) * \
         #        np.exp(-(self.x1 - np.pi)**2 - (self.x2 - np.pi)**2)
-        X = self.x1
-        Y = self.x2
-        return -(X**2 + 2*Y**2 - 0.3*np.cos(3*np.pi*X)*np.cos(4*np.pi*Y)+0.3)
+        # X = self.x1
+        # Y = self.x2
+        # return -(X**2 + 2*Y**2 - 0.3*np.cos(3*np.pi*X)*np.cos(4*np.pi*Y)+0.3)
+        a = np.sin(np.sqrt(self.x1**2 + self.x2**2))**2 - 0.5
+        b = (1 + 0.001*(self.x1**2 + self.x2**2))**2
+        return (-1) * (0.5 + a / b)
 
     def mutate(self):
         if np.random.random() < Individual.MUT_PROBA:
@@ -38,7 +43,7 @@ class Individual:
 
 
 class Population:
-    SIZE = 50
+    SIZE = 70
     ALPHA = alpha
     BETA = beta
 
@@ -110,20 +115,26 @@ def main():
         init_gen.append(Individual(x1, x2))
 
     population = Population(init_gen)
-    GENERATIONS = 30
+    GENERATIONS = 40
 
     # f = lambda X, Y: -np.cos(X) * np.cos(Y) * \
-    #     np.exp(-(X - np.pi)**2 - (Y - np.pi)**2)
-    f = lambda X, Y: X**2 + 2*Y**2 - 0.3 * np.cos(3*np.pi * X) * \
-        np.cos(4*np.pi * Y) + 0.3
-    x = np.linspace(0, 0.4, 10)
-    y = np.linspace(0, 0.4, 10)
+    #     np.exp(-(X - np.pi)**2 - (Y - np.pi)**2)  # 5
+    # f = lambda X, Y: X**2 + 2*Y**2 - 0.3 * np.cos(3*np.pi * X) * \
+    #     np.cos(4*np.pi * Y) + 0.3  # 6 (0)
+    f = lambda x1, x2: (0.5 + np.sin(np.sqrt(x1**2 + x2**2))**2 - 0.5 /
+                        (1 + 0.001*(x1**2 + x2**2))**2)  # 2 (0)
+    x = np.linspace(-10, 10, 50)
+    y = np.linspace(-10, 10, 50)
+    # for a, b in zip(x, y):
+    #     print(f"{a:.3f}, {b:.3f}, || {f(a, b):.3f}")
+
     X, Y = np.meshgrid(x, y)
     Z = f(X, Y)
 
     cp = plt.contourf(X, Y, Z)
     plt.colorbar(cp)
-    plt.title("$x_1^{2}+2x_2^{2}-0.3cos(3\pi x_1)cos(4\pi x_2) + 0.3$")
+    # ax = plt.subplot(111, projection="3d")
+    # ax.plot_surface(X, Y, Z, cmap=cm.coolwarm, linewidth=0, antialiased=True)
     plt.show()
 
     maxfit = []
@@ -147,9 +158,10 @@ def main():
         population.extend(nextgen)
         population.reduce()
 
-        print("Best individual ({:.5f}, {:.5f})".format(
+        print("Best individual ({:.5f}, {:.5f}), f={:.5f}".format(
             population.population[0].x1,
-            population.population[0].x2
+            population.population[0].x2,
+            population.population[0].fitness()
         ))
 
     g = list(range(GENERATIONS))

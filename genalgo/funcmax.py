@@ -1,21 +1,10 @@
-# find max f(t) = (1.1t - 1.7)cos(pi*t + 1.5) -9 <= t <= 9
-# inputs:
-#   size of population
-#   max individual size (number of genes)
-#   crossover probability
-#   mutation probability
-#   max number of generations
-# outputs:
-#   best ang average fitness in population
-#   value of best individual
-
 from random import randint, random
 import matplotlib.pyplot as plt
 import numpy as np
 
 class Individual:
-    LBOUND = -9
-    HBOUND = 9
+    LO = -9 #-6  # -9
+    HI = 9  #6  # 9
     NGENES = 10
     LEN = 2 ** NGENES
     MUT_PROBA = 0.25
@@ -26,8 +15,8 @@ class Individual:
 
     @staticmethod
     def pheno_geno(pheno):
-        x = int((Individual.LEN - 1) / (Individual.HBOUND - Individual.LBOUND) *
-                (pheno - Individual.LBOUND))
+        x = int((Individual.LEN - 1) / (Individual.HI - Individual.LO) *
+                (pheno - Individual.LO))
         s = ""
         while x > 0:
             s += str(x % 2)
@@ -39,12 +28,13 @@ class Individual:
 
     @staticmethod
     def geno_pheno(geno):
-        return Individual.LBOUND + int(geno, base=2) * \
-               (Individual.HBOUND - Individual.LBOUND) / (Individual.LEN - 1)
+        return Individual.LO + int(geno, base=2) * \
+               (Individual.HI - Individual.LO) / (Individual.LEN - 1)
 
     def fitness(self):
-        # f(t) = (1.1t - 1.7)cos(pi*t + 1.5)
-        return (1.1 * self.value - 1.7) * np.cos(np.pi * self.value + 1.5)
+        # return (1.1 * self.value - 1.7) * np.cos(np.pi * self.value + 1.5)
+        # return (1.3*self.value + 1.9) * np.cos(1.1*np.pi*self.value - 1.5)
+        return (0.5*self.value - 1.4) * np.cos(0.5*np.pi*self.value + 1.1)
 
     def mutate(self):
         if random() < Individual.MUT_PROBA:
@@ -56,7 +46,7 @@ class Individual:
 
 
 class Population:
-    SIZE = 50
+    SIZE = 70
 
     def __init__(self, initpop):
         self.population = initpop
@@ -88,14 +78,13 @@ class Population:
         fit = [indiv.fitness() for indiv in self.population]
         return sum(fit) / len(self.population) # Population.SIZE
 
+
 def main():
-    init_gen = [Individual(randint(Individual.LBOUND, Individual.HBOUND))
+    init_gen = [Individual(randint(Individual.LO, Individual.HI))
                 for _ in range(Population.SIZE)]
 
     population = Population(init_gen)
-    GENERATIONS = 30
-
-    f = lambda x: (1.1 * x - 1.7) * np.cos(np.pi * x + 1.5)
+    GENERATIONS = 20
 
     for generation in range(GENERATIONS):
         print("\nGeneration", generation)
@@ -114,18 +103,20 @@ def main():
         population.extend(nextgen)
         population.reduce()
 
-        fx = np.linspace(-9, 9, 100)
-        fy = f(fx)
-        plt.plot(fx, fy)
+        if (generation % 5 == 0) or (generation == GENERATIONS - 1):
+            # f = lambda x: (1.1 * x - 1.7) * np.cos(np.pi * x + 1.5)  # 4
+            # f = lambda x: (1.3*x + 1.9) * np.cos(1.1*np.pi*x - 1.5)  # 2
+            f = lambda x: (0.5*x - 1.4) * np.cos(0.5*np.pi*x + 1.1)
+            fx = np.linspace(Individual.LO, Individual.HI, 100)
+            fy = f(fx)
+            plt.plot(fx, fy)
 
-        x = [item.value for item in population.population]
-        d = [f(item.value) for item in population.population]
-        plt.scatter(x, d, c="red", s=8)
-        plt.title(f"Generation {generation}")
-        plt.show()
+            x = [item.value for item in population.population]
+            d = [f(item.value) for item in population.population]
+            plt.scatter(x, d, c="red", s=8)
+            plt.title(f"Generation {generation}")
+            plt.show()
+
 
 if __name__ == '__main__':
-    # p = Individual(-9)
-    # print(p.geno)
-    # print(Individual.geno_pheno(p.geno))
     main()
