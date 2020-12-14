@@ -43,10 +43,10 @@ class Graph:
         d = []
         for v1 in selected:
             for v2 in complement:
-                if (v1, v2) in self.distances:
+                if self.distances[v1, v2]:
                     d.append( (self.distances[(v1, v2)], (v1, v2)) )
-                elif (v2, v1) in self.distances:
-                    d.append( (self.distances[(v2, v1)], (v2, v1)) )
+                # elif (v2, v1) in self.distances:
+                    # d.append( (self.distances[(v2, v1)], (v2, v1)) )
         m = min(d, key=lambda v: v[0])
         return m[1]
 
@@ -66,21 +66,25 @@ class Graph:
 
 def union(clusters):
     for i in range(len(clusters)):
-        for j in range(i+1, len(clusters)):
+        for j in range(i+1, len(clusters)-1):
             if clusters[i].intersection(clusters[j]):
                 clusters[j].union(clusters[i])
                 del clusters[i]
 
 
-def make_clusters(graph):
-    mst = graph.get_mst("prim")
+def make_clusters(graph, k):
+    mst = graph.get_mst("kruskal")
+    print(mst)
+    input()
     clusters = [set([vert]) for vert in graph.vertices]
+    # count = len(graph.vertices)
     # print("MST start", mst)
     # print("CLUSTER start", clusters)
-    while len(mst) > 0:
+    while len(clusters) > k:
+        # print("COUNT", count)
+        print("CLUSTERS", len(clusters))
         m = min(mst, key=lambda e: graph.distances[e])
         # print("MIN edge", m)
-        new = None
         for c in clusters:
             if (m[0] in c):
                 c.add(m[1])
@@ -88,6 +92,10 @@ def make_clusters(graph):
                 c.add(m[0])
         union(clusters)
         mst.remove(m)
+        if len(mst) == 0:
+            print("MST break")
+            break
+        # count -= 1
         # print("MST", mst)
         # print("CLUSTERS", clusters)
         # input()
@@ -109,7 +117,7 @@ def main():
 
     # mst_p = graph.prim()
     # print(mst_p)
-    print(make_clusters(graph))
+    print(make_clusters(graph, 2))
 
 
 if __name__ == "__main__":

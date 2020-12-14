@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from random import choice
+from random import choice, random
 
 
 def distance(p1, p2):
@@ -31,14 +31,24 @@ def assign_point(clusters, centers, point):
 
 
 def kmeans(points, k):
-    clusters = [[] for _ in range(k)]
+    clusters_prev = []
     cnts = centers(points, k)
-    for p in points:
-        clusters = assign_point(clusters, cnts, p)
+
+    ITER_COUNT = 50
+    while ITER_COUNT != 0:
+        clusters = [[] for _ in range(k)]
+        for p in points:
+            clusters = assign_point(clusters, cnts, p)
         for i, _ in enumerate(cnts):
             if len(clusters[i]) > 0:
                 cnts[i] = points_mean(clusters[i])
-    return clusters, cnts
+
+        print(f"it = {ITER_COUNT}")
+        if (clusters == clusters_prev) or (ITER_COUNT == 0):
+            return clusters, cnts
+
+        clusters_prev = clusters
+        ITER_COUNT -= 1
 
 
 if __name__ == "__main__":
@@ -53,7 +63,8 @@ if __name__ == "__main__":
     # plt.show()
 
     clusters, _ = kmeans(points, 3)
-    # print(clusters)
+
+    print(clusters)
 
     fig, ax = plt.subplots()
     for clust in clusters:
