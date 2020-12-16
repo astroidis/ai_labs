@@ -3,8 +3,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 class Individual:
-    LO = -9 #-6  # -9
-    HI = 9  #6  # 9
+    LO = -9
+    HI = 9
     NGENES = 10
     LEN = 2 ** NGENES
     MUT_PROBA = 0.25
@@ -33,8 +33,8 @@ class Individual:
 
     def fitness(self):
         # return (1.1 * self.value - 1.7) * np.cos(np.pi * self.value + 1.5)
-        # return (1.3*self.value + 1.9) * np.cos(1.1*np.pi*self.value - 1.5)
-        return (0.5*self.value - 1.4) * np.cos(0.5*np.pi*self.value + 1.1)
+        # return (-1) * (1.3*self.value + 1.9) * np.cos(1.1*np.pi*self.value - 1.5)  # 2
+        return (-1) * (0.5*self.value - 1.4) * np.cos(0.5*np.pi*self.value + 1.1)
 
     def mutate(self):
         if random() < Individual.MUT_PROBA:
@@ -76,7 +76,7 @@ class Population:
 
     def avg_fitness(self):
         fit = [indiv.fitness() for indiv in self.population]
-        return sum(fit) / len(self.population) # Population.SIZE
+        return sum(fit) / len(self.population)
 
 
 def main():
@@ -86,10 +86,11 @@ def main():
     population = Population(init_gen)
     GENERATIONS = 20
 
+    stats_best = []
+    stats_avg = []
     for generation in range(GENERATIONS):
-        print("\nGeneration", generation)
-        print("Max Fitness", population.best_fitness())
-        print("Average Fitess", population.avg_fitness())
+        stats_best.append(population.best_fitness())
+        stats_avg.append(population.avg_fitness())
 
         nextgen = []
         parents = population.selection(Population.SIZE // 2)
@@ -116,6 +117,14 @@ def main():
             plt.scatter(x, d, c="red", s=8)
             plt.title(f"Generation {generation}")
             plt.show()
+
+    plt.plot(list(range(GENERATIONS)), stats_best, label="Best")
+    plt.plot(list(range(GENERATIONS)), stats_avg, label="Avg")
+    plt.xlabel("generations")
+    plt.ylabel("fitness")
+    plt.legend(loc="best")
+    plt.grid(True)
+    plt.show()
 
 
 if __name__ == '__main__':

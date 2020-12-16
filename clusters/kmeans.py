@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from random import choice, random
+from random import choice
 
 
 def distance(p1, p2):
@@ -43,7 +43,9 @@ def kmeans(points, k):
             if len(clusters[i]) > 0:
                 cnts[i] = points_mean(clusters[i])
 
-        print(f"it = {ITER_COUNT}")
+        # print(clusters)
+        # print(clusters_prev)
+        # input()
         if (clusters == clusters_prev) or (ITER_COUNT == 0):
             return clusters, cnts
 

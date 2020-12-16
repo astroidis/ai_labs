@@ -1,3 +1,6 @@
+from subtree import get_clusters, cut_edges
+
+
 class Graph:
     def __init__(self, vertices, edges, distances):
         self.vertices = vertices
@@ -32,9 +35,7 @@ class Graph:
         mst = set()
         self.edges.sort(key=lambda e: self.distances[e])
         for edge in self.edges:
-            # print(f"CUR EDGE {edge} len {self.distances[edge]}")
             if self.__find(edge[0]) != self.__find(edge[1]):
-                # print("Added")
                 mst.add((edge[0], edge[1]))
                 self.__union(edge[0], edge[1])
         return mst
@@ -45,8 +46,6 @@ class Graph:
             for v2 in complement:
                 if self.distances[v1, v2]:
                     d.append( (self.distances[(v1, v2)], (v1, v2)) )
-                # elif (v2, v1) in self.distances:
-                    # d.append( (self.distances[(v2, v1)], (v2, v1)) )
         m = min(d, key=lambda v: v[0])
         return m[1]
 
@@ -60,46 +59,17 @@ class Graph:
             selected.add(min_edge[1] if min_edge[1] not in selected else min_edge[0])
             complement.remove(min_edge[1] if min_edge[1] in complement else min_edge[0])
             mst.add(min_edge)
-            # print("ADDED EDGE", min_edge)
         return mst
 
 
-def union(clusters):
-    for i in range(len(clusters)):
-        for j in range(i+1, len(clusters)-1):
-            if clusters[i].intersection(clusters[j]):
-                clusters[j].union(clusters[i])
-                del clusters[i]
-
-
 def make_clusters(graph, k):
-    mst = graph.get_mst("kruskal")
-    print(mst)
-    input()
-    clusters = [set([vert]) for vert in graph.vertices]
-    # count = len(graph.vertices)
-    # print("MST start", mst)
-    # print("CLUSTER start", clusters)
-    while len(clusters) > k:
-        # print("COUNT", count)
-        print("CLUSTERS", len(clusters))
-        m = min(mst, key=lambda e: graph.distances[e])
-        # print("MIN edge", m)
-        for c in clusters:
-            if (m[0] in c):
-                c.add(m[1])
-            elif m[1] in c:
-                c.add(m[0])
-        union(clusters)
-        mst.remove(m)
-        if len(mst) == 0:
-            print("MST break")
-            break
-        # count -= 1
-        # print("MST", mst)
-        # print("CLUSTERS", clusters)
-        # input()
-    return clusters
+    mst = graph.get_mst("prim")
+
+    mst_list = list(mst)
+    mst_list.sort(key=lambda e: graph.distances[e], reverse=True)
+
+    forest = cut_edges(mst, mst_list[:k-1])
+    return get_clusters(forest)
 
 
 def main():

@@ -95,4 +95,5 @@ if __name__ == "__main__":
     plt.xlabel("generations")
     plt.ylabel("fitness")
     plt.legend(loc="best")
+    plt.grid(True)
     plt.show()
