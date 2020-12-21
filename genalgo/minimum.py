@@ -7,21 +7,14 @@ import numpy as np
 class Individual:
     LOW = -100
     HI = 100
-    MUT_PROBA = 0.35
+    MUT_PROBA = 0.3
 
     def __init__(self, x1, x2):
         self.x1 = x1
         self.x2 = x2
 
     def fitness(self):
-        # return -np.cos(self.x1) * np.cos(self.x2) * \
-        #        np.exp(-(self.x1 - np.pi)**2 - (self.x2 - np.pi)**2)
-        X = self.x1
-        Y = self.x2
-        return -(X**2 + 2*Y**2 - 0.3*np.cos(3*np.pi*X) - 0.4*np.cos(4*np.pi*Y)+0.7)
-        # a = np.sin(np.sqrt(self.x1**2 + self.x2**2))**2 - 0.5
-        # b = (1 + 0.001*(self.x1**2 + self.x2**2))**2
-        # return (-1) * (0.5 + a / b)
+        return (-1) * -np.cos(self.x1)*np.cos(self.x2)*np.exp(-(self.x1-np.pi)**2 - (self.x2-np.pi)**2)
 
     def mutate(self):
         if np.random.random() < Individual.MUT_PROBA:
@@ -30,20 +23,24 @@ class Individual:
 
 
 class Population:
-    SIZE = 100
+    SIZE = 200
     ALPHA = 1 + np.random.random()
     BETA = 2 - ALPHA
+    CX_PROB = 0.5
 
     def __init__(self, initpop):
         self.population = initpop
 
+    def __getitem__(self, key):
+        return self.population[key]
+
     def selection(self, size, method):
         if method == "rank":
-            return self.rank_selection(size)
+            return self.__rank()
         elif method == "tournament":
-            return self.tournament_selection(size)
+            return self.__tournament()
 
-    def rank_selection(self, size):
+    def __rank(self):
         self.population = sorted(self.population, key=lambda x: x.fitness(),
                                  reverse=True)
         t = lambda i: ((Population.ALPHA - Population.BETA) *
@@ -51,21 +48,19 @@ class Population:
         ranks = [1/Population.SIZE * (Population.ALPHA - t(i))
                  for i, _ in enumerate(self.population)]
         next = []
-        while size > 0:
+        for _ in range(Population.SIZE):
             for r, item in zip(ranks, self.population):
                 if np.random.random() < r:
                     next.append(item)
-                    size -= 1
         return next
 
-    def tournament_selection(self, size):
+    def __tournament(self):
         next = []
-        while size > 0:
+        for _ in range(Population.SIZE):
             contestants = np.random.choice(self.population, 5)
             contestants = sorted(contestants, key=lambda x: x.fitness(),
                                  reverse=True)
             next.append(contestants[0])
-            size -= 1
         return next
 
     @staticmethod
@@ -96,7 +91,7 @@ class Population:
 
 
 def main():
-    GENERATIONS = 40
+    GENERATIONS = 80
 
     init_gen = []
     for _ in range(Population.SIZE):
@@ -105,37 +100,30 @@ def main():
 
     population = Population(init_gen)
 
-    # f = lambda X, Y: -np.cos(X) * np.cos(Y) * \
-    #     np.exp(-(X - np.pi)**2 - (Y - np.pi)**2)  # 5
-    f = lambda X, Y: X**2 + 2*Y**2 - 0.3*np.cos(3*np.pi*X) - \
-                     0.4*np.cos(4*np.pi*Y)+0.7  # 6 (0)
-    # f = lambda x1, x2: (0.5 + np.sin(np.sqrt(x1**2 + x2**2))**2 - 0.5 /
-    #                     (1 + 0.001*(x1**2 + x2**2))**2)  # 2 (0)
-    x = np.linspace(-10, 10, 50)
-    y = np.linspace(-10, 10, 50)
+    f = lambda x1, x2: -np.cos(x1)*np.cos(x2)*np.exp(-(x1-np.pi)**2 - (x2-np.pi)**2)
+    x = np.linspace(0, 6, 50)
+    y = np.linspace(0, 6, 50)
     X, Y = np.meshgrid(x, y)
     Z = f(X, Y)
 
     cp = plt.contourf(X, Y, Z)
     plt.colorbar(cp)
-    # # ax = plt.subplot(111, projection="3d")
-    # # ax.plot_surface(X, Y, Z, cmap=cm.coolwarm, linewidth=0, antialiased=True)
+    # ax = plt.subplot(111, projection="3d")
+    # ax.plot_surface(X, Y, Z, cmap=cm.coolwarm, linewidth=0, antialiased=True)
     plt.show()
 
     maxfit = []
     avgfit = []
     for generation in range(GENERATIONS):
-        # print("\nGeneration", generation)
-        # print("Max Fitness", population.best_fitness())
-        # print("Average Fitness", population.avg_fitness())
         maxfit.append(population.best_fitness())
         avgfit.append(population.avg_fitness())
 
         nextgen = []
-        parents = population.selection(Population.SIZE // 2, "rank")
-        for i in range(len(parents) // 2):
-            p1, p2 = parents[i], parents[-i-1]
-            nextgen.extend(Population.crossover(p1, p2))
+        parents = population.selection(Population.SIZE // 2, "tournament")
+        for i in range(Population.SIZE // 2):
+            if np.random.random() < Population.CX_PROB:
+                p1, p2 = parents[i], parents[-i-1]
+                nextgen.extend(Population.crossover(p1, p2))
 
         for indiv in nextgen:
             indiv.mutate()
@@ -156,8 +144,8 @@ def main():
     plt.xlabel("generations")
     plt.ylabel("fitness")
     plt.grid(True)
-    # plt.title("Tournament selection")
-    plt.title("Rank selection")
+    plt.title("Tournament selection")
+    # plt.title("Rank selection")
     plt.show()
 
 

@@ -79,7 +79,6 @@ def main():
     mstats = tools.MultiStatistics(value=value_stats, weight=weight_stats)
     mstats.register("max", np.max, axis=0)
     mstats.register("avg", np.mean, axis=0)
-    mstats.register("min", np.min, axis=0)
 
     population = toolbox.create_population()
     hof = tools.HallOfFame(1)
@@ -89,8 +88,8 @@ def main():
         stats=mstats, verbose=True, halloffame=hof
     )
 
-    value = logbook.chapters["value"].select("max", "min", "avg")
-    weight = logbook.chapters["weight"].select("max", "min", "avg")
+    value = logbook.chapters["value"].select("max", "avg")
+    weight = logbook.chapters["weight"].select("max", "avg")
 
     best = hof[0]
     print("Best:", best)
@@ -100,8 +99,7 @@ def main():
 
     plt.subplot(1, 2, 1)
     plt.plot(value[0], color="red", label="Max")
-    plt.plot(value[1], color="blue", label="Min")
-    plt.plot(value[2], color="green", label="Avg")
+    plt.plot(value[1], color="green", label="Avg")
     plt.xlabel("generations")
     plt.ylabel("value")
     plt.grid(True)
@@ -110,8 +108,7 @@ def main():
 
     plt.subplot(1, 2, 2)
     plt.plot(weight[0], color="red", label="Max")
-    plt.plot(weight[1], color="blue", label="Min")
-    plt.plot(weight[2], color="green", label="Avg")
+    plt.plot(weight[1], color="green", label="Avg")
     plt.xlabel("generations")
     plt.ylabel("weight")
     plt.grid(True)
